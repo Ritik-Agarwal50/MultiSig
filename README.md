@@ -1,66 +1,33 @@
-## Foundry
+<!-- @format -->
 
-**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
+The MultiSigWallet contract exhibits several design choices to facilitate secure and flexible multi-signature wallet functionality.
 
-Foundry consists of:
+1.Modular Structure: The contract is organized into functions, events, and modifiers, promoting readability and maintainability.
 
--   **Forge**: Ethereum testing framework (like Truffle, Hardhat and DappTools).
--   **Cast**: Swiss army knife for interacting with EVM smart contracts, sending transactions and getting chain data.
--   **Anvil**: Local Ethereum node, akin to Ganache, Hardhat Network.
--   **Chisel**: Fast, utilitarian, and verbose solidity REPL.
+2.Event Logging: Events like Deposit, Submit, Approval, Revoke, and Executed are logged to provide transparency and enable external systems to track contract activities.
 
-## Documentation
+3.Struct for Transactions: A Transaction struct encapsulates relevant details, including recipient, amount, execution status, data, and the number of confirmations.
 
-https://book.getfoundry.sh/
+4.Owners Management: Owners are stored in an array, and a mapping (isOwner) is used to efficiently check owner status. Duplicate owner prevention is enforced.
 
-## Usage
+5.Modifiers for Access Control: Modifiers like onlyOwner, txExist, notExecuted, and notApproved enhance security by restricting access based on ownership and transaction state.
 
-### Build
+6.Constructor Validation: The constructor enforces valid input parameters, ensuring that owners are provided, the required number is within bounds, and no duplicate owners exist.
 
-```shell
-$ forge build
-```
+7.Fallback Function: The contract includes a receive function to accept ether, triggering the Deposit event for fund tracking.
 
-### Test
+8.Dynamic Ownership: Owners can be added or removed by modifying the constructor or extending the contract functionality.
 
-```shell
-$ forge test
-```
+9.Transaction Submission: The submit function allows owners to propose transactions, emitting a Submit event for each submission.
 
-### Format
+10.Approval Mechanism: The approve function facilitates owner consensus by incrementing confirmations and recording approvals in a mapping.
 
-```shell
-$ forge fmt
-```
+11.Execution Logic: The execute function verifies the required confirmations before marking a transaction as executed, preventing unauthorized executions.
 
-### Gas Snapshots
+12.Revocation Mechanism: Owners can revoke their approval through the revoke function, reducing confirmation count and updating approval status.
 
-```shell
-$ forge snapshot
-```
+13.Getters for Data Retrieval: Public getter functions (getOwners, getTransaction) provide external visibility into contract state, enhancing transparency.
 
-### Anvil
+14.Fallback to Prevent Ether Loss: The fallback function ensures that accidental or malicious transfers of Ether to the contract without data are rejected.
 
-```shell
-$ anvil
-```
-
-### Deploy
-
-```shell
-$ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --private-key <your_private_key>
-```
-
-### Cast
-
-```shell
-$ cast <subcommand>
-```
-
-### Help
-
-```shell
-$ forge --help
-$ anvil --help
-$ cast --help
-```
+15.Use of Calldata for Transaction Data: The submit function utilizes the calldata keyword to store transaction data efficiently.
